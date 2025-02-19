@@ -1,3 +1,5 @@
+//On my honor, I have neither given nor received unauthorized aid on this assignment
+
 #include <fstream>
 #include <string>
 #include <vector>
@@ -34,8 +36,8 @@ class instruction{
     }
 };
 
-int dataMemory[8] = {2,4,6,8,10,12,14,16};
-uint64_t registers[8] = {4,3,2,1,4,3,2,1};
+int dataMemory[8] = {0,0,0,0,0,0,0,0};
+uint64_t registers[8] = {0,0,0,0,0,0,0,0};
 
 queue<instruction> INM;
 vector<instruction> INB;
@@ -125,17 +127,44 @@ uint64_t ALU_Perform(instruction in){
 
 
 
-
-
 int main(){
 
-    //fill instructions
-    INM.push(instruction("ADD","R1","R2","R3"));
-    INM.push(instruction("LD","R4","R2","R3"));
-    INM.push(instruction("AND","R5","R2","R3"));
-    INM.push(instruction("LD","R6","R2","R2"));
-    INM.push(instruction("OR","R1","R3","R2"));
+    //read Data Mem
+    ifstream dataMemFile("datamemory.txt");
+    string dataMemStr;
+    while (getline(dataMemFile, dataMemStr))
+    {
+        int comma = dataMemStr.find(',');
+        int val = stoi(dataMemStr.substr(comma+1,dataMemStr.length()-comma-1));
+        int pos = dataMemStr[1] - '0';
+        dataMemory[pos] = val;
+    }
 
+    //read register mem
+    ifstream regMemFile("registers.txt");
+    string regMemStr; 
+    while (getline(regMemFile, regMemStr))
+    {
+        int comma = regMemStr.find(',');
+        uint64_t val = stoi(regMemStr.substr(comma+1,regMemStr.length()-comma-1));
+        int pos = regMemStr[2]-'0';
+        registers[pos] = val;
+    }
+
+    //read instructions
+    ifstream instMemFile("instructions.txt");
+    string instMemStr; 
+    while (getline(instMemFile, instMemStr))
+    {
+        int comma = instMemStr.find(',');
+        string opcode = instMemStr.substr(1,comma-1);
+        string dest = instMemStr.substr(comma+1,2);
+        string src1 = instMemStr.substr(comma+4,2);
+        string src2 = instMemStr.substr(comma+7,2);
+        INM.push(instruction(opcode,dest,src1,src2));
+    }
+
+    //fill instructions
     ofstream output;
     output.open("simulation.txt");
     int step = 0;
